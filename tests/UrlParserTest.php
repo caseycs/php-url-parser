@@ -3,7 +3,7 @@ use UrlParser\UrlParser;
 
 class UrlParserTest extends PHPUnit_Framework_TestCase
 {
-    public function providerToString()
+    public function providerUrlParser()
     {
         return [
             'basic' => ['http://ya.ru', null, 'http://ya.ru', 'http', 'ya.ru', 80, null, null],
@@ -17,7 +17,7 @@ class UrlParserTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider providerToString
+     * @dataProvider providerUrlParser
      */
     public function testUrlParser($url, $baseUrl, $toString, $scheme, $host, $port, $user, $pass)
     {
