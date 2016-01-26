@@ -35,9 +35,9 @@ class UrlParser
         $this->pass = isset($matches['pass']) ? $matches['pass'] : null;
     }
 
-    private function parseBaseAndRelativeUrl($url)
-    {
-    }
+//    private function parseBaseAndRelativeUrl($url)
+//    {
+//    }
 
     public function getScheme()
     {
