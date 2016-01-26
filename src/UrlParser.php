@@ -11,11 +11,11 @@ class UrlParser
 
     public function __construct($url, $baseUrl = null)
     {
-        if (null === $baseUrl) {
+//        if (null === $baseUrl) {
             $this->parseFullUrl($url);
-        } else {
-            $this->parseBaseAndRelativeUrl($baseUrl, $url);
-        }
+//        } else {
+//            $this->parseBaseAndRelativeUrl($baseUrl, $url);
+//        }
     }
 
     private function parseFullUrl($url)
@@ -77,17 +77,11 @@ class UrlParser
 
     public function getQuery()
     {
-        if (null === $this->query) {
-            throw new UrlPartNotDefinedException;
-        }
         return $this->query;
     }
 
     public function getFragment()
     {
-        if (null === $this->fragment) {
-            throw new UrlPartNotDefinedException;
-        }
         return $this->fragment;
     }
 
