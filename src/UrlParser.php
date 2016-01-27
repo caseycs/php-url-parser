@@ -43,7 +43,6 @@ class UrlParser
 
     private function normalizePath($path)
     {
-        //tricky
         $pathPartsResult = [];
         foreach (explode('/', substr($path, 1)) as $pathPart) { // without first slash
             if ($pathPart === '..') {
