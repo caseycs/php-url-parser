@@ -198,6 +198,18 @@ class UrlParserTest extends PHPUnit_Framework_TestCase
                 '',
                 ''
             ],
+            'normalize path simple 3' => [
+                'http://ya.ru/.',
+                'http://ya.ru/',
+                'http',
+                'ya.ru',
+                80,
+                null,
+                null,
+                '/',
+                '',
+                ''
+            ],
             'normalize path tricky 1' => [
                 'http://ya.ru/fff/../',
                 'http://ya.ru/',
