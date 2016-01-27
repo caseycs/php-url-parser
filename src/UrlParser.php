@@ -4,24 +4,25 @@ namespace UrlParser;
 class UrlParser
 {
     const PORT_DEFAULT = 80;
-    const PATTERN_FULL_URL = '~^(?<scheme>.*)://(?:(?<user>[^:]+):(?<pass>[^@]+)@)?(?<host>[^/:]*)(?::(?<port>\d+))?'
-        .'(?:/)?$~';// [path?query#fragment
+    const PATTERN_FULL_URL = '~^'
+        . '(?<scheme>.*)://'
+        . '(?:(?<user>[^:]+):(?<pass>[^@]+)@)?(?<host>.*?)'
+        . '(?::(?<port>\d+))?'
+        . '(?<path>/[^\?#]*)?'
+        . '(?<query>\?[^#]*)?'
+        . '(?<fragment>#.*)?'
+        . '$~';
 
-    private $url, $scheme, $port, $host, $user, $pass, $path, $query, $fragment;
+    private $scheme, $port, $host, $user, $pass, $path, $query, $fragment;
 
     public function __construct($url, $baseUrl = null)
     {
-//        if (null === $baseUrl) {
-            $this->parseFullUrl($url);
-//        } else {
-//            $this->parseBaseAndRelativeUrl($baseUrl, $url);
-//        }
+        $this->parseFullUrl($url);
+        $this->path = $this->normalizePath($this->path);
     }
 
     private function parseFullUrl($url)
     {
-        $this->url = $url;
-
         $matches = [];
         if (!preg_match(self::PATTERN_FULL_URL, $url, $matches)) {
             throw new UrlInvalidException;
@@ -29,15 +30,38 @@ class UrlParser
 
         $this->scheme = $matches['scheme'];
         $this->host = $matches['host'];
-        $this->port = isset($matches['port']) ? (int)$matches['port'] : self::PORT_DEFAULT;
+        $this->port = isset($matches['port']) && $matches['port'] !== '' ? (int)$matches['port'] : self::PORT_DEFAULT;
 
-        $this->user = isset($matches['user']) ? $matches['user'] : null;
-        $this->pass = isset($matches['pass']) ? $matches['pass'] : null;
+        $this->user = isset($matches['user']) && $matches['user'] !== ''  ? $matches['user'] : null;
+        $this->pass = isset($matches['pass']) && $matches['pass'] !== ''  ? $matches['pass'] : null;
+
+        $this->path = isset($matches['path']) && $matches['path'] !== ''  ? $matches['path'] : '/';
+
+        $this->query = isset($matches['query']) && $matches['query'] !== ''  ? substr($matches['query'], 1) : '';
+        $this->fragment = isset($matches['fragment']) && $matches['fragment'] !== ''  ? substr($matches['fragment'], 1) : '';
     }
 
-//    private function parseBaseAndRelativeUrl($url)
-//    {
-//    }
+    private function normalizePath($path)
+    {
+        //simple
+        $count = 0;
+        do {
+            $path = str_replace('/./', '/', $path, $count);
+        } while ($count > 0);
+
+        //tricky
+        $pathPartsResult = [];
+        foreach (explode('/', substr($path, 1)) as $pathPart) { // without first slash
+            if ($pathPart === '..') {
+                array_pop($pathPartsResult);
+                continue;
+            }
+            $pathPartsResult[] = $pathPart;
+        }
+        $path = '/' . join('/', $pathPartsResult);
+
+        return $path;
+    }
 
     public function getScheme()
     {
@@ -87,6 +111,21 @@ class UrlParser
 
     public function __toString()
     {
-        return $this->url;
+        $result = $this->scheme . '://';
+        if ($this->user || $this->pass) {
+            $result .= $this->user . ':' . $this->pass . '@';
+        }
+        $result .= $this->host;
+        if ($this->port !== self::PORT_DEFAULT) {
+            $result .= ':' . $this->port;
+        }
+        $result .= $this->path;
+        if ($this->query) {
+            $result .= '?' . $this->query;
+        }
+        if ($this->fragment) {
+            $result .= '#' . $this->fragment;
+        }
+        return $result;
     }
 }
